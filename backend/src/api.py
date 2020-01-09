@@ -57,9 +57,9 @@ def get_drinks():
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
-@requires_auth('get:drinks-detail')
 @app.route('/drinks-detail')
-def get_drink_details():
+@requires_auth('get:drinks-detail')
+def get_drink_details(payload):
     search_term = request.args.get('searchTerm')
     drinks_q = Drink.query
     if search_term:
@@ -79,9 +79,9 @@ def get_drink_details():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
-@requires_auth('post:drinks')
 @app.route('/drinks', methods=['POST'])
-def create_drink():
+@requires_auth('post:drinks')
+def create_drink(payload):
     data = request.json
     parts = data.get('recipe', [])
     if not parts:
@@ -110,9 +110,9 @@ def create_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
-@requires_auth('patch:drinks')
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
-def edit_drink(drink_id):
+@requires_auth('patch:drinks')
+def edit_drink(payload, drink_id):
     drink = Drink.query.get(drink_id)
     if not drink:
         return not_found_error('Resource not found')
@@ -138,9 +138,9 @@ def edit_drink(drink_id):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
-@requires_auth('delete:drinks')
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
-def delete_drink(drink_id):
+@requires_auth('delete:drinks')
+def delete_drink(payload, drink_id):
     drink = Drink.query.get(drink_id)
     if not drink:
         return not_found_error('Resource not found')
