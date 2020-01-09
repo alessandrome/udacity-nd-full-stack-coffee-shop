@@ -30,6 +30,8 @@ This will install all of the required packages we selected within the `requireme
 
 - [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
 
+- [Flask-WTForm](https://flask-wtf.readthedocs.io/en/stable/#) is an extension to check form request data and have an easy way to create forms
+
 ## Running the server
 
 From within the `./src` directory first ensure you are working using your created virtual environment.
@@ -83,3 +85,181 @@ There are `@TODO` comments throughout the `./backend/src`. We recommend tackling
 
 1. `./src/auth/auth.py`
 2. `./src/api.py`
+
+## API Documentation
+
+- ### GET /drinks
+    Get drinks with short format
+  
+    Example JSON response:
+    ```
+      {
+      "drinks": [
+        {
+          "id": 4, 
+          "recipe": [
+            {
+              "color": "green", 
+              "parts": 1
+            },
+            {
+              "color": "darkgreen", 
+              "parts": 2
+            }
+          ], 
+          "title": "Mocha Drink"
+        }
+      ], 
+      "success": true
+    }
+    ```
+  
+- ### GET /drinks-detail
+    Get drinks with long format. You need _**get:drinks-detail**_ permission for this
+  
+    Example JSON response:
+    ```
+      {
+      "drinks": [
+        {
+          "id": 4, 
+          "recipe": [
+            {
+              "name": "Tea",
+              "color": "green", 
+              "parts": 1
+            },
+            {
+              "name": "Mocha",
+              "color": "darkgreen", 
+              "parts": 2
+            }
+          ], 
+          "title": "Mocha Drink"
+        },
+        ...
+      ], 
+      "success": true
+    }
+    ```
+
+- ### POST /drinks
+    Endpoint to create a new drink. You need _**post:drinks**_ permission for this
+    
+    JSON parameters:
+    - **title**: Name of the new drink
+    - **recipe**: Array containing all parts of the drink
+    - **recipe.\*.name**: Name of the drink part
+    - **recipe.\*.color**: Color of part to show. All CSS colors formats are ok
+    - **recipe.\*.parts**: Number of parts of recipe element
+    
+    Example JSON request:
+    ```
+    {
+        "title":"Mocha Drink",
+        "recipe":[
+            {
+                "name": "Tea",
+                "color": "green",
+                "parts": 1
+            }, {
+                "name": "Mocha",
+                "color": "darkgreen",
+                "parts": 2
+            }
+        ]
+    }
+    ```
+  
+    Example JSON response:
+    ```
+      {
+        "drinks": [
+        {
+          "id": 4, 
+          "recipe": [
+            {
+              "color": "green", 
+              "parts": 1
+            },
+            {
+              "color": "darkgreen", 
+              "parts": 2
+            }
+          ], 
+          "title": "Mocha Drink"
+        }
+      ], 
+      "success": true
+    }
+    ```
+  
+- ### PATCH /drinks/<int:drink_id>
+    Endpoint to create a new drink. You need _**patch:drinks**_ permission for this
+    
+    URL parameters:
+    - **drink_id**: Id of drink to edit
+    
+    JSON parameters:
+    - **title**: Name of the new drink
+    - **recipe**: Array containing all parts of the drink
+    - **recipe.\*.name**: Name of the drink part
+    - **recipe.\*.color**: Color of part to show. All CSS colors formats are ok
+    - **recipe.\*.parts**: Number of parts of recipe element
+    
+    Example JSON request:
+    ```
+    {
+        "title":"Super Mocha Drink",
+        "recipe":[
+            {
+                "name": "Super-Tea",
+                "color": "#00ff00",
+                "parts": 1
+            }, {
+                "name": "Super-Mocha",
+                "color": "darkgreen",
+                "parts": 2
+            }
+        ]
+    }
+    ```
+  
+    Example JSON response:
+    ```
+      {
+        "drinks": [
+        {
+          "id": 4, 
+          "recipe": [
+            {
+                "name": "Super-Tea",
+                "color": "#00ff00",
+                "parts": 1
+            },
+            {
+                "name": "Super-Mocha",
+                "color": "darkgreen",
+                "parts": 2
+            }
+          ], 
+          "title": "Super Mocha Drink"
+        }
+      ], 
+      "success": true
+    }
+    ```
+  
+- ### DELETE /drinks/<int:drink_id>
+    Delete the specified drink. You need _**delete:drinks**_ permission for this
+    
+    URL parameters:
+    - **drink_id**: Id of drink to delete
+  
+    Example JSON response:
+    ```
+    {
+        "drink": 4, <-- id of deleted drink
+        "success": true
+    }
+    ```
