@@ -1,0 +1,16 @@
+.action-flex {
+  display: flex;
+  padding: 0 15px;
+
+  &__divider {
+    flex: 1 0 auto;
+  }
+}
+
+.drink-form__content {
+  display: flex;
+
+  > form {
+    flex: 1 0 auto;
+  }
+}
