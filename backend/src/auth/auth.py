@@ -5,15 +5,18 @@ from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'
+AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'  # Change this as needed
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'dev'
+API_AUDIENCE = 'udacity-coffee-shop'  # Change this as needed
+JWK = None  # This will store (on runtime) JWK to validate JWT
 
 ## AuthError Exception
 '''
 AuthError Exception
 A standardized way to communicate auth failure modes
 '''
+
+
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
@@ -31,7 +34,17 @@ class AuthError(Exception):
     return the token part of the header
 '''
 def get_token_auth_header():
-   raise Exception('Not Implemented')
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        raise AuthError('Authorization header is not present.', 401)
+    token_split = auth_header.split(' ')
+    if len(token_split) != 2:
+        raise AuthError('Malformed Authorization header value.', 401)
+    return token_split[1]
+    # token_parts = token_str.split(' ')
+    # if len(token_parts) != 3:
+    #     raise AuthError('Malformed authorization token.', 401)
+
 
 '''
 @TODO implement check_permissions(permission, payload) method
@@ -45,7 +58,12 @@ def get_token_auth_header():
     return true otherwise
 '''
 def check_permissions(permission, payload):
-    raise Exception('Not Implemented')
+    if 'permissions' not in payload:
+        raise AuthError('Permissions are not included in JWT', 403)
+    if permission not in payload['permissions']:
+        raise AuthError('You don\'t have permissions for this action', 403)
+    return True
+
 
 '''
 @TODO implement verify_decode_jwt(token) method
@@ -61,7 +79,15 @@ def check_permissions(permission, payload):
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
 def verify_decode_jwt(token):
-    raise Exception('Not Implemented')
+    global JWK
+    if not JWK:
+        JWK = json.loads(urlopen('https://{}/.well-known/jwks.json'.format(AUTH0_DOMAIN)).read())
+    try:
+        payload = jwt.decode(token, JWK, ALGORITHMS, audience='udacity-coffee-shop')
+        return payload
+    except Exception as e:
+        raise AuthError(repr(e), 401)
+
 
 '''
 @TODO implement @requires_auth(permission) decorator method
@@ -81,6 +107,5 @@ def requires_auth(permission=''):
             payload = verify_decode_jwt(token)
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
-
         return wrapper
     return requires_auth_decorator
