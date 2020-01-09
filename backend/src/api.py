@@ -24,6 +24,7 @@ CORS(app)
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = '*'
     return response
 
 
@@ -109,9 +110,22 @@ def create_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@requires_auth('patch:drinks')
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
 def edit_drink(drink_id):
-    pass
+    drink = Drink.query.get(drink_id)
+    if not drink:
+        return not_found_error('Resource not found')
+    try:
+        patch_data = request.json
+        if 'title' in patch_data:
+            drink.title = patch_data.get('title')
+        if 'recipe' in patch_data:
+            drink.recipe = json.dumps(patch_data.get('recipe'))
+        db.session.commit()
+    except Exception as e:
+        return server_error()
+    return jsonify({'success': True, "drinks": [drink.long()]})
 
 
 '''
@@ -124,9 +138,18 @@ def edit_drink(drink_id):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@requires_auth('delete:drinks')
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
 def delete_drink(drink_id):
-    pass
+    drink = Drink.query.get(drink_id)
+    if not drink:
+        return not_found_error('Resource not found')
+    try:
+        db.session.delete(drink)
+        db.session.commit()
+    except Exception as e:
+        return server_error()
+    return jsonify({'success': True, "delete": drink_id}), 200
 
 
 ## Error Handling
